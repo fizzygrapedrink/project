@@ -10,6 +10,33 @@ import schedule
 TOKEN = '8988021987:AAGxLUpbmirBTHXXPR2EufMsX3L_-C133tk'
 bot = telebot.TeleBot(TOKEN)
 
+# Команда /start
+@bot.message_handler(commands=['start'])
+def start_command(message):
+    user_id = message.from_user.id
+    user_states[user_id] = {'step': None, 'task_data': {}}
+
+    welcome_text = (
+        f"👋 Привет, {message.from_user.first_name}!\n\n"
+        "Я твой умный бот-планер. Я помогу:\n"
+        "• Расставлять приоритеты\n"
+        "• Находить свободное время\n"
+        "• Помнить о важных делах\n\n"
+        "Выбери действие в меню:"
+    )
+
+    bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu())
+
+# Главное меню
+def main_menu():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    btn1 = types.KeyboardButton('➕ Новая задача')
+    btn2 = types.KeyboardButton('📋 Мои задачи')
+    btn3 = types.KeyboardButton('📊 Статистика')
+    btn4 = types.KeyboardButton('✅ Выполненные')
+    btn5 = types.KeyboardButton('❓ Помощь')
+    markup.add(btn1, btn2, btn3, btn4, btn5)
+    return markup
 
 # Инициализация базы данных
 def init_db():
@@ -164,38 +191,6 @@ def estimate_duration(title, category):
         return 90
     else:
         return 60
-
-
-# Главное меню
-def main_menu():
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn1 = types.KeyboardButton('➕ Новая задача')
-    btn2 = types.KeyboardButton('📋 Мои задачи')
-    btn3 = types.KeyboardButton('📊 Статистика')
-    btn4 = types.KeyboardButton('✅ Выполненные')
-    btn5 = types.KeyboardButton('❓ Помощь')
-    markup.add(btn1, btn2, btn3, btn4, btn5)
-    return markup
-
-
-# Команда /start
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    user_id = message.from_user.id
-    user_states[user_id] = {'step': None, 'task_data': {}}
-
-    welcome_text = (
-        f"👋 Привет, {message.from_user.first_name}!\n\n"
-        "Я твой умный бот-планер. Я помогу:\n"
-        "• Создавать и управлять задачами\n"
-        "• Автоматически определять приоритеты\n"
-        "• Находить свободное время\n"
-        "• Напоминать о важных делах\n\n"
-        "Выберите действие в меню:"
-    )
-
-    bot.send_message(message.chat.id, welcome_text, reply_markup=main_menu())
-
 
 # Обработчик текстовых сообщений
 @bot.message_handler(func=lambda message: True)
